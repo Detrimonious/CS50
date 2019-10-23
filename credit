@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <cs50.h>
+#include <math.h>
+
+int main (void){
+    
+    long card_save = 0;
+    long card = 0;
+    do{
+        card = get_long("Number: ");
+    }while(card < 0);
+    
+    card_save = card;
+
+    int no_multiply = 0;
+    int yes_multiply = 0;
+    
+    while(card > 0){
+        no_multiply += card % 10;
+        card /= 10;
+        int multi_num = (card % 10) * 2;
+        if (multi_num>10){
+            yes_multiply += (multi_num % 10);
+            yes_multiply++;
+        }
+        else {
+            yes_multiply += multi_num;
+        }
+        card /= 10;
+    }
+    
+    bool legit = false;
+    
+    if (yes_multiply % 10 == 0){
+        legit = true;
+    }
+    
+    if ((card_save >= 100000000000000 && card_save <= 999999999999999) &&
+        ((card_save % 10000000000000)==34 || (card_save % 10000000000000)==37) &&
+        legit == true){
+        printf("AMEX\n");
+    } else if ((card_save >= 1000000000000000 && card_save <= 9999999999999999) &&
+        ((card_save % 10000000000000)==51 || (card_save % 10000000000000)==52 ||
+        (card_save % 10000000000000)==53 || (card_save % 10000000000000)==54 || 
+        (card_save % 10000000000000)==55) &&
+        legit == true) {
+        printf("MASTERCARD\n");
+    } else if ((((card_save >= 1000000000000 && card_save <= 9999999999999) &&
+        ((card_save % 1000000000000) == 4)) ||
+        ((card_save >= 1000000000000000 && card_save <= 9999999999999999) && 
+        ((card_save % 1000000000000000) == 4))) &&
+        legit == true) {
+        printf("VISA\n");
+    } else {
+        printf("INVALID\n");
+    }
+    
+    printf("%d\n", legit);
+}
