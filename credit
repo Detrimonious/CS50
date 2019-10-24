@@ -19,7 +19,7 @@ int main (void){
         no_multiply += card % 10;
         card /= 10;
         int multi_num = (card % 10) * 2;
-        if (multi_num>10){
+        if (multi_num>=10){
             yes_multiply += (multi_num % 10);
             yes_multiply++;
         }
@@ -31,10 +31,10 @@ int main (void){
     
     bool legit = false;
     
-    if (yes_multiply % 10 == 0){
+    if ((yes_multiply + no_multiply) % 10 == 0){
         legit = true;
     }
-    
+    /**
     if ((card_save >= 100000000000000 && card_save <= 999999999999999) &&
         ((card_save % 10000000000000)==34 || (card_save % 10000000000000)==37) &&
         legit == true){
@@ -54,6 +54,6 @@ int main (void){
     } else {
         printf("INVALID\n");
     }
-    
+    **/
     printf("%d\n", legit);
 }
