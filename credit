@@ -34,26 +34,25 @@ int main (void){
     if ((yes_multiply + no_multiply) % 10 == 0){
         legit = true;
     }
-    /**
+
     if ((card_save >= 100000000000000 && card_save <= 999999999999999) &&
-        ((card_save % 10000000000000)==34 || (card_save % 10000000000000)==37) &&
+        ((card_save / 10000000000000)==34 || (card_save / 10000000000000)==37) &&
         legit == true){
         printf("AMEX\n");
     } else if ((card_save >= 1000000000000000 && card_save <= 9999999999999999) &&
-        ((card_save % 10000000000000)==51 || (card_save % 10000000000000)==52 ||
-        (card_save % 10000000000000)==53 || (card_save % 10000000000000)==54 || 
-        (card_save % 10000000000000)==55) &&
+        ((card_save / 100000000000000)==51 || (card_save / 100000000000000)==52 ||
+        (card_save / 100000000000000)==53 || (card_save / 100000000000000)==54 || 
+        (card_save / 100000000000000)==55) &&
         legit == true) {
         printf("MASTERCARD\n");
     } else if ((((card_save >= 1000000000000 && card_save <= 9999999999999) &&
-        ((card_save % 1000000000000) == 4)) ||
+        ((card_save / 1000000000000) == 4)) ||
         ((card_save >= 1000000000000000 && card_save <= 9999999999999999) && 
-        ((card_save % 1000000000000000) == 4))) &&
+        ((card_save / 1000000000000000) == 4))) &&
         legit == true) {
         printf("VISA\n");
     } else {
         printf("INVALID\n");
     }
-    **/
-    printf("%d\n", legit);
+
 }
