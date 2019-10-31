@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int shift(char c);
-void v_cipher(int keynum, string plaintext);
+void v_cipher(int keynum, char letter);
 
 int main(int argc, string argv[])
 {
@@ -23,9 +23,39 @@ int main(int argc, string argv[])
         }
     }
     int key = shift(argv[1][0]);
+    int keylength = strlen(argv[1]);
+    int keys[keylength];                    //contains keyword elements to shift later
+    
+    
+    for (int i=0; i< strlen(argv[1]); i++){        //creates int elements to keyword
+        keys[i] = shift(argv[1][i]);
+    }
 
     string plaintext = get_string("plaintext:   ");
-    v_cipher(key, plaintext);
+    int plainlength = strlen(plaintext);           //length of plaintext word
+    
+    printf("ciphertext:  ");
+    int counter = 0;                                //count which element of the keyword we are on
+    
+    for (int i=0; i<plainlength; i++){            //run through length of the plaintext word
+        
+        if (isupper(plaintext[i]) || islower(plaintext[i])){    //if not a letter, then skip
+            
+            v_cipher(keys[counter], plaintext[i]);    //cipher using keyword element and plaintext element
+            counter++;                                //count up for next keyword element
+            
+            if (counter >= keylength){            //if run out of keyword elements, reset keyword #
+                counter = 0;
+                
+            }
+        }
+        else{
+            printf("%c", plaintext[i]);
+        }
+    }
+            
+    printf("\n");
+
 }
 
 int shift(char c){
@@ -34,21 +64,21 @@ int shift(char c){
     return keyshift;
 }
 
-void v_cipher(int key, string plaintext){
+void v_cipher(int key, char letter){
     
-    for (int i=0; i < strlen(plaintext); i++){
-        if (isupper(plaintext[i])){
-            if (plaintext[i] + (key % 26) > 90){                    //if higher than 'Z', loop down
-                plaintext[i] = plaintext[i] - 26;
+        if (isupper(letter)){
+            if (letter + (key % 26) > 90){                    //if higher than 'Z', loop down
+                letter = letter - 26;
             }
-            plaintext[i] = plaintext[i] + (key % 26);
+            letter = letter + (key % 26);
         }
-        else if (islower(plaintext[i])){
-            if (plaintext[i] + (key % 26) > 122){                    //if higher than 'z', loop down
-                plaintext[i] = plaintext[i] - 26;
+        else if (islower(letter)){
+            if (letter + (key % 26) > 122){                    //if higher than 'z', loop down
+                letter = letter - 26;
             }
-            plaintext[i] = plaintext[i] + (key % 26);
+            letter = letter + (key % 26);
         }
-    }
-    printf("ciphertext:  %s\n", plaintext);
+
+    printf("%c", letter);
+
 }
