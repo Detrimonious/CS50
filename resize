@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     // change amount of bytes needed total for output bmp img
     outbi.biSizeImage = ((sizeof(RGBTRIPLE)*outbi.biWidth) + resizepadding) * abs(outbi.biHeight);
     // change total size of file
-    outbf.bfSize = outbi.biSizeImage + sizeof(BITMAPFILEHEADER) * sizeof(BITMAPINFOHEADER);
+    outbf.bfSize = outbi.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     // write outfile's BITMAPFILEHEADER
     fwrite(&outbf, sizeof(BITMAPFILEHEADER), 1, outptr);
