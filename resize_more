@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     // change amount of bytes needed total for output bmp img
     outbi.biSizeImage = ((sizeof(RGBTRIPLE)*outbi.biWidth) + resizepadding) * abs(outbi.biHeight);
     // change total size of file
-    outbf.bfSize = outbi.biSizeImage + sizeof(BITMAPFILEHEADER) * sizeof(BITMAPINFOHEADER);
+    outbf.bfSize = outbi.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     // write outfile's BITMAPFILEHEADER
     fwrite(&outbf, sizeof(BITMAPFILEHEADER), 1, outptr);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // or if resizeby > 1
+    // or if resizeby >= 1
     else
     {
         // iterate over infile's scanlines
@@ -176,10 +176,14 @@ int main(int argc, char *argv[])
                 }
 
                 //return to beginning of line to repeat the pixels by amount of scale times
-                if (m < resizeby - 1)
+                if (resizeby > 1)
                 {
 
-                    fseek (inptr, -((bi.biWidth * 3) + padding), SEEK_CUR);
+                    if (m < resizeby - 1)
+                    {
+
+                        fseek (inptr, -((bi.biWidth * 3) + padding), SEEK_CUR);
+                    }
                 }
             }
         }
