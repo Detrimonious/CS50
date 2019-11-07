@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+
+    if (argc != 2)
+    {
+        fprintf(stderr, "Program only takes one argument. Usage:./recover card.raw\n");
+        return 1;
+    }
+
+    char *infile = argv[1];
+
+    FILE *inptr = fopen(infile, "r");
+    if (inptr == NULL)
+    {
+        fprintf(stderr, "File %s cannot be opened.\n", infile);
+        return 2;
+    }
+
+    // to keep count of number of jpgs and their filenames
+    int count = 0;
+    int yesjpg = 0;
+
+    // the buffer; temp storage
+    unsigned char buffer[512];
+
+    // empty 'string' for new file name
+    char outfile[10];
+    // pointer for outfile
+    FILE *outptr = NULL;
+
+    // while able to read 512 elements of 1 byte each
+    while (fread(buffer, 1, 512, inptr))
+    {
+
+        // if begin with jpg header, then write jpg into a filename
+        // else will return to while and continue to read next block
+        if (buffer[0] == 0xff &&
+            buffer[1] == 0xd8 &&
+            buffer[2] == 0xff &&
+            (buffer[3] & 0xf0) == 0xe0)
+        {
+            // creates the new file and name for the new jpg
+            //char *outfile = NULL;
+            sprintf(outfile, "%03i.jpg", count);
+
+            // opens the new file that we will write in, or ERROR if NULL
+            outptr = fopen(outfile, "w");
+            if (outptr == NULL)
+            {
+                fprintf(stderr, "Could not open out file.\n");
+                return 3;
+            }
+
+            // so yes this is a jpg and returns '1', or 'true', to the variable
+            yesjpg++;
+
+            // prepare for next jpg count and name
+            count++;
+        }
+
+        // if yesjpg returns true--so yes this is a jpg file
+        if (yesjpg)
+        {
+            // if NOT end of file from the pointer and fread
+            if (feof(outptr) == 0)
+            {
+                // writes into the new jpg file the actual jpg bytes
+                // taking the next byte
+                fwrite(buffer, 1, 512, outptr);
+            }
+            else
+            {
+                // if end of the 512 size, then close the file
+                // reset yesjpg
+                fclose(outptr);
+                yesjpg = 0;
+            }
+        }
+    }
+
+    // if unable to read 512 elements, buffer at end of file
+    // close infile
+    fclose(inptr);
+
+    return 0;
+
+}
