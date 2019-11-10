@@ -1,0 +1,154 @@
+// Implements a dictionary's functionality
+
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+
+#include "dictionary.h"
+
+// Represents number of buckets in a hash table
+#define N 26
+
+// Represents a node in a hash table
+typedef struct node
+{
+    char word[LENGTH + 1];
+    struct node *next;
+}
+node;
+
+// Represents a hash table
+node *hashtable[N];
+
+// global variable to count number of words in the dictionary as it is loaded
+int dictionarysize = 0;
+
+// Hashes word to a number between 0 and 25, inclusive, based on its first letter
+unsigned int hash(const char *word)
+{
+    return tolower(word[0]) - 'a';
+}
+
+// Loads dictionary into memory, returning true if successful else false
+bool load(const char *dictionary)
+{
+    // Initialize hash table
+    for (int i = 0; i < N; i++)
+    {
+        hashtable[i] = NULL;
+    }
+
+    // Open dictionary
+    FILE *file = fopen(dictionary, "r");
+    if (file == NULL)
+    {
+        unload();
+        return false;
+    }
+
+    // Buffer for a word
+    char word[LENGTH + 1];
+
+    // Insert words into hash table
+    while (fscanf(file, "%s", word) != EOF)
+    {
+        // creates the new node by allocating memory to it
+        node *new_node = malloc(sizeof(node));
+
+        // if no memory, or invalid, then exit
+        if (new_node == NULL)
+        {
+            printf("No memory available.\n");
+            return 2;
+        }
+
+        // adds the word into the node's value, and point at NULL
+        strcpy(new_node->word, word);
+        new_node->next = NULL;
+
+        // if the hash table's bucket has nothing in it, then this new node is the first node and is now pointed to as linked list
+        if (hashtable[hash(word)] == NULL)
+        {
+            hashtable[hash(word)] = new_node;
+        }
+        // else it points to the first item in the linked list, then becomes the new first item
+        else
+        {
+            new_node->next = hashtable[hash(word)]->next;
+            hashtable[hash(word)]->next = new_node;
+        }
+
+        // adds to size of dictionary
+        dictionarysize++;
+    }
+
+    // Close dictionary
+    fclose(file);
+    // Indicate success
+    return true;
+}
+
+// Returns number of words in dictionary if loaded else 0 if not yet loaded
+unsigned int size(void)
+{
+    if (dictionarysize > 0)
+    {
+        return dictionarysize;
+    }
+    else
+    {
+        printf("Dictionary not yet loaded.\n");
+        return 0;
+    }
+}
+
+// Returns true if word is in dictionary else false
+bool check(const char *word)
+{
+    // create a cursor pointer to the bucket the word belongs to
+    node *cursor = hashtable[hash(word)];
+
+    int wordlength = strlen(word);
+    char testword[wordlength + 1];
+    strcpy(testword, word);
+
+    for (int i = 0; i < wordlength; i++)
+    {
+        testword[i] = tolower(testword[i]);
+    }
+
+    // while the cursor pointer has not reached the end of the hash bucket
+    while (cursor != NULL)
+    {
+        // if the word in the linked list node matches the word passed in [strcasecmp == 0], then true
+        if (!strcasecmp(cursor->word, testword))
+        {
+            return true;
+        }
+        // else it will go to the next node in linked list, or NULL if no nodes left
+        cursor = cursor -> next;
+    }
+
+    // returns false if cursor ends at NULL and no match is found
+    return false;
+}
+
+// Unloads dictionary from memory, returning true if successful else false
+bool unload(void)
+{
+    for (int i = 0; i < N; i++)
+    {
+        node *cursor = hashtable[i];
+        while (cursor != NULL)
+        {
+            node *temp = cursor;
+            cursor = cursor->next;
+            free(temp);
+        }
+    }
+
+    return true;
+}
