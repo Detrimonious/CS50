@@ -1,0 +1,159 @@
+// Implements a dictionary's functionality
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include "dictionary.h"
+
+// Represents number of children for each node in a trie
+#define N 27
+
+// Represents a node in a trie
+typedef struct node
+{
+    bool is_word;
+    struct node *children[N];
+}
+node;
+
+// Represents a trie
+node *root;
+
+// size increases as we load words
+int dictionarysize = 0;
+
+// Loads dictionary into memory, returning true if successful else false
+bool load(const char *dictionary)
+{
+    // Initialize trie
+    root = malloc(sizeof(node));
+    if (root == NULL)
+    {
+        return false;
+    }
+    root->is_word = false;
+    for (int i = 0; i < N; i++)
+    {
+        root->children[i] = NULL;
+    }
+
+    // Open dictionary
+    FILE *file = fopen(dictionary, "r");
+    if (file == NULL)
+    {
+        unload();
+        return false;
+    }
+
+    // Buffer for a word
+    char word[LENGTH + 1];
+
+    // Insert words into trie
+    while (fscanf(file, "%s", word) != EOF)
+    {
+        // length of the new dictionary word
+        int wordlength = strlen(word);
+
+        // creates a new node pointer that aligns with the root of trie
+        node *place = root;
+
+        // initialize variable index for use in children arrays
+        int index = 0;
+
+        // while we are not at the end of the word length
+        for(int currentlevel = 0; currentlevel < wordlength; currentlevel++)
+        {
+            // figure out the index of the current letter of the word, either lowercase alpha or apostrophe
+            if (word[currentlevel] == '\'') index = 27;
+            else index = tolower(word[currentlevel]) - 'a';
+
+            // if the following child array is NULL, then add a new node to it and add a full empty array
+            // place starts at root, then slowly moves to following children
+            if (place->children[index] == NULL)
+            {
+
+                node *node2 = malloc(sizeof(node));
+                node2->is_word = false;
+                for (int i = 0; i < N; i++)
+                {
+                    node2->children[i] = NULL;
+                }
+                place->children[index] = node2;
+            }
+            // go to the next place, aka child array
+            place = place->children[index];
+        }
+        place->is_word = true;
+        dictionarysize++;
+    }
+
+    // Close dictionary
+    fclose(file);
+
+    // Indicate success
+    return true;
+}
+
+// Returns number of words in dictionary if loaded else 0 if not yet loaded
+unsigned int size(void)
+{
+    if (dictionarysize > 0)
+    {
+        return dictionarysize;
+    }
+    return 0;
+}
+
+// Returns true if word is in dictionary else false
+bool check(const char *word)
+{
+    // a pointer to start at root, then move down levels
+    node *place = root;
+    int wordlength = strlen(word);
+
+    // to go to where in each child array we are
+    int index = 0;
+
+    // to iterate through word's length
+    int i = 0;
+
+    // while we are still in the word
+    while(i < wordlength)
+    {
+
+        // figure out the index of the current letter of the word, either lowercase alpha or apostrophe
+        if (word[i] == '\'') index = 27;
+        else index = tolower(word[i]) - 'a';
+
+        // goes down to char of word in the children. if NULL child, then return false-not a word. else increases to next char in the word.
+        place = place->children[index];
+        if (place==NULL) return false;
+        i++;
+
+    }
+    // at the end of the word, return if is_word is true or false
+    return (place->is_word);
+}
+
+// recursive function to free down to the lowest levels and then rise back to the top
+void freeall(node *temproot)
+{
+    if (!temproot) return;
+    for (int i = 0; i < N; i++)
+    {
+        freeall(temproot->children[i]);
+    }
+    free(temproot);
+}
+
+
+// Unloads dictionary from memory, returning true if successful else false
+bool unload(void)
+{
+    node *temproot = root;
+    freeall(temproot);
+    return true;
+}
