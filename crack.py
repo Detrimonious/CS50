@@ -3,17 +3,22 @@ from sys import argv
 from cs50 import get_string
 
 def main():
-    if len(argv) != 2:
-        exit("Not enough arguments.")
 
+    # if the command line takes in too few or too many arguments
+    if len(argv) != 2:
+        exit("Usage: python crack.py hash")
+
+    # the hash/salt is the word entered in argument
     salt = argv[1]
 
+    # string of all guessable letters to route through
     guess = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     crack_it(guess, salt)
 
     exit("Password longer than 5 characters or not only alphas.")
 
+# function to run through nested loops to actually guess/crack the password
 def crack_it(guess, salt):
 
     for c in guess:
